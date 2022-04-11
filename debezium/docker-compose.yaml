@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+  zookeeperdbz:
+    image: debezium/zookeeper:1.1
+    container_name: zookeeperdbz
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+
+  kafkadbz:
+    image: debezium/kafka
+    container_name: kafkadbz
+    restart: always
+    depends_on: 
+      - zookeeperdbz
+    links: 
+      - zookeeperdbz:zookeeperdbz
+    ports:
+      - 9092:9092
+
+  watcher:
+    image: debezium/kafka
+    container_name: watcher
+    depends_on: 
+      - zookeeperdbz
+      - kafkadbz
+    links: 
+      - zookeeperdbz:zookeeperdbz
+      - kafkadbz:kafkadbz
+    command: watch-topic -a -k dbserver1.inventory.customers
+
+  mysqldbz:
+    image: debezium/example-mysql
+    container_name: mysqldbz
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: debezium
+      MYSQL_USER: mysqluser
+      MYSQL_PASSWORD: mysqlpw
+  
+  elasticdbz:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+    container_name: elasticdbz
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      discovery.type: single-node
+      cluster.name: docker-cluster
+
+  connectdbz:
+    image: debezium/connect
+    container_name: connectdbz
+    restart: always
+    depends_on: 
+      - mysqldbz
+      - elasticdbz
+    links: 
+      - mysqldbz:mysqldbz
+      - elasticdbz:elasticdbz
+    ports:
+      - 8083:8083
+    environment:
+      GROUP_ID: 1 
+      CONFIG_STORAGE_TOPIC: my_connect_configs 
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
