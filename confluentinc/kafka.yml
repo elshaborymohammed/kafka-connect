@@ -100,6 +100,7 @@ services:
         #
         sleep infinity
 
+
   ksqldb:
     # *-----------------------------*
     # To connect to ksqlDB CLI
@@ -158,6 +159,7 @@ services:
                necessary topics to be available"
         sleep 120  
         /etc/confluent/docker/run
+
 
   kafkacat:
     image: edenhill/kafkacat:1.6.0

@@ -100,6 +100,8 @@ services:
         #
         sleep infinity
 
+
+
   ksqldb:
     # *-----------------------------*
     # To connect to ksqlDB CLI
@@ -158,6 +160,8 @@ services:
                necessary topics to be available"
         sleep 120  
         /etc/confluent/docker/run
+
+
 
 # Other systems
   mysql:
@@ -233,6 +237,8 @@ services:
             --compressed
 
         sleep infinity
+
+
 
   neo4j:
     image: neo4j:4.2.3
